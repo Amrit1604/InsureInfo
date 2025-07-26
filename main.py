@@ -373,26 +373,6 @@ RESPONSE FORMAT (JSON only):
     def display_decision(self, decision):
         """Display the decision in a user-friendly format with healthcare assistance"""
         print(f"\n{Back.BLUE}{Fore.WHITE}{'=' * 60}")
-        print(f"  🏥 INSURANCE CLAIM DECISION & HEALTHCARE ASSISTANCE")
-        print(f"{'=' * 60}{Style.RESET_ALL}")
-
-        # Decision status
-        if decision['decision'] == 'approved':
-            print(f"{Fore.GREEN}✅ CLAIM APPROVED")
-        elif decision['decision'] == 'rejected':
-            print(f"{Fore.RED}❌ CLAIM REJECTED")
-        else:
-            print(f"{Fore.YELLOW}⚠️  PROCESSING ERROR")
-
-        # Location detected
-        if decision.get('location_detected') and decision['location_detected'] != 'Not specified':
-            print(f"{Fore.CYAN}� Location: {decision['location_detected']}")
-
-        # User-friendly explanation
-
-    def display_decision(self, decision):
-        """Display the decision in a user-friendly format with healthcare assistance"""
-        print(f"\n{Back.BLUE}{Fore.WHITE}{'=' * 60}")
         print(f"  🏥 BAJAJ ALLIANZ GLOBAL HEALTH CARE - CLAIM ANALYSIS")
         print(f"{'=' * 60}{Style.RESET_ALL}")
 
@@ -465,50 +445,8 @@ RESPONSE FORMAT (JSON only):
                 print(f"   • AI processed query: {decision['processed_query']}")
 
         print(f"\n{Fore.WHITE}{'=' * 60}")
-        print(f"   {decision.get('user_friendly_explanation', 'No explanation available')}")
 
-        # Emergency status
-        if decision.get('emergency_override'):
-            print(f"\n{Fore.RED}🚨 Emergency Override Applied - Fast-track processing")
 
-        # Healthcare Assistance Section
-        print(f"\n{Back.GREEN}{Fore.WHITE} 🏥 HEALTHCARE ASSISTANCE {Style.RESET_ALL}")
-
-        # Nearby hospitals
-        if decision.get('nearby_hospitals'):
-            print(f"\n{Fore.CYAN}🏥 Recommended Hospitals/Centers:")
-            for i, hospital in enumerate(decision['nearby_hospitals'], 1):
-                print(f"   {i}. {hospital}")
-
-        # Emergency contacts
-        if decision.get('emergency_contacts'):
-            print(f"\n{Fore.RED}📞 Emergency Contacts:")
-            for contact in decision['emergency_contacts']:
-                print(f"   • {contact}")
-
-        # Immediate care tips
-        if decision.get('immediate_care_tips'):
-            print(f"\n{Fore.YELLOW}💡 Immediate Care Tips:")
-            for i, tip in enumerate(decision['immediate_care_tips'], 1):
-                print(f"   {i}. {tip}")
-
-        # Specialist recommendation
-        if decision.get('specialist_recommendation'):
-            print(f"\n{Fore.MAGENTA}👨‍⚕️ Specialist Needed: {decision['specialist_recommendation']}")
-
-        # Technical justification
-        if decision.get('justification'):
-            print(f"\n{Fore.BLUE}🔍 Technical Analysis:")
-            print(f"   {decision['justification']}")
-
-        # Metadata
-        if decision.get('clauses_analyzed'):
-            print(f"\n{Fore.MAGENTA}📊 Analysis Details:")
-            print(f"   • Clauses analyzed: {decision['clauses_analyzed']}")
-            if decision.get('processed_query'):
-                print(f"   • AI processed query: {decision['processed_query']}")
-
-        print(f"\n{Fore.WHITE}{'=' * 60}")
 
     def general_hospitality_assistant(self, user_query):
         """Handle general hospitality queries using Gemini API"""

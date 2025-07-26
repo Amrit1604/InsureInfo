@@ -1,0 +1,12 @@
+PyMuPDF
+sentence-transformers
+faiss-cpu
+python-docx
+PyPDF2
+google-generativeai
+python-dotenv
+streamlit
+numpy
+plotly
+pandas
+colorama

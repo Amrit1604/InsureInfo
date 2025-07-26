@@ -1,0 +1,44 @@
+{
+  "demo_timestamp": "2025-07-20 04:28:17",
+  "policies_loaded": [
+    "sample_policy1.pdf",
+    "sample_policy5.pdf",
+    "sample_policy2.pdf",
+    "sample_policy3.pdf",
+    "sample_policy4.pdf"
+  ],
+  "total_clauses": 267,
+  "test_results": [
+    {
+      "scenario": "\ud83c\udfc3 Young Athlete Injury",
+      "decision": "approved",
+      "policies_used": 4
+    },
+    {
+      "scenario": "\ud83d\ude97 Car Accident Emergency",
+      "decision": "approved",
+      "policies_used": 3
+    },
+    {
+      "scenario": "\ud83c\udfe5 Routine vs Emergency",
+      "decision": "rejected",
+      "policies_used": 3
+    },
+    {
+      "scenario": "\ud83d\udc76 New Parent Coverage",
+      "decision": "approved",
+      "policies_used": 4
+    },
+    {
+      "scenario": "\ud83e\udde0 Mental Health Support",
+      "decision": "rejected",
+      "policies_used": 3
+    }
+  ],
+  "summary": {
+    "approved": 3,
+    "rejected": 2,
+    "errors": 0,
+    "average_policies_consulted": 3.4
+  }
+}

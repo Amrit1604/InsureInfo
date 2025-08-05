@@ -10,3 +10,8 @@ numpy
 plotly
 pandas
 colorama
+fastapi
+uvicorn[standard]
+pydantic
+python-multipart
+aiofiles

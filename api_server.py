@@ -112,6 +112,18 @@ async def startup_event():
         logger.error(f"❌ Failed to initialize processor: {str(e)}")
         # Continue anyway - we can still process queries
 
+# Root endpoint for Render deployment detection
+@app.get("/")
+async def root():
+    """Root endpoint - helps Render detect the service is running"""
+    return {
+        "message": "🏥 LLM Claims Processing API is running!",
+        "status": "healthy",
+        "hackathon_endpoint": "/hackrx/run",
+        "documentation": "/docs",
+        "health_check": "/health"
+    }
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():
@@ -165,7 +177,7 @@ async def hackrx_run(request: QueryRequest, authorization: Optional[str] = Heade
 
     Process insurance claim queries using LLM and semantic search.
     Optimized for both speed and complex query handling.
-    
+
     Optional Authorization header supported (Bearer token)
     """
     start_time = time.time()
@@ -174,7 +186,7 @@ async def hackrx_run(request: QueryRequest, authorization: Optional[str] = Heade
         # Optional: Log authorization if provided (for hackathon compliance)
         if authorization:
             logger.info("🔐 Authorization header received")
-        
+
         logger.info(f"📥 Processing hackathon request with {len(request.questions)} questions")
 
         # Validate processor
@@ -522,6 +534,10 @@ async def general_exception_handler(request, exc):
 
 if __name__ == "__main__":
     import uvicorn
+    import os
+
+    # Get port from environment variable for Render deployment
+    port = int(os.environ.get("PORT", 8000))
 
     # Run the server
     print("🚀 Starting LLM Claims Processing API Server...")
@@ -529,11 +545,12 @@ if __name__ == "__main__":
     print("📊 Health check: GET /health")
     print("📚 Documentation: GET /docs")
     print("🧪 Test endpoint: POST /api/test")
+    print(f"🌐 Running on port: {port}")
 
     uvicorn.run(
         "api_server:app",
         host="0.0.0.0",
-        port=8000,
+        port=port,
         reload=False,  # Disable for production
         log_level="info"
     )

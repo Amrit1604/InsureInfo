@@ -7,7 +7,7 @@ Endpoint: POST /hackrx/run
 OPTIMIZED FOR COMPLEX QUERIES AND SPEED
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
@@ -75,22 +75,13 @@ class QueryRequest(BaseModel):
     )
 
 class AnswerResponse(BaseModel):
-    """Individual answer response"""
+    """Individual answer response - EXACTLY matching hackathon format"""
     question: str
     answer: str
-    confidence: float = Field(ge=0.0, le=1.0)
-    relevant_clauses: List[str] = []
-    decision: Optional[str] = None
-    justification: Optional[str] = None
 
 class HackrxResponse(BaseModel):
-    """Response model for the hackrx/run endpoint"""
+    """Response model for the hackrx/run endpoint - EXACTLY matching hackathon format"""
     answers: List[AnswerResponse]
-    processing_time: float
-    document_processed: bool
-    total_questions: int
-    successful_answers: int
-    system_info: Dict[str, Any]
 
 # Startup event
 @app.on_event("startup")
@@ -168,16 +159,22 @@ async def hackrx_run_info():
 
 # Main hackathon endpoint
 @app.post("/hackrx/run", response_model=HackrxResponse)
-async def hackrx_run(request: QueryRequest):
+async def hackrx_run(request: QueryRequest, authorization: Optional[str] = Header(None)):
     """
     🏆 MAIN HACKATHON ENDPOINT
 
     Process insurance claim queries using LLM and semantic search.
     Optimized for both speed and complex query handling.
+    
+    Optional Authorization header supported (Bearer token)
     """
     start_time = time.time()
 
     try:
+        # Optional: Log authorization if provided (for hackathon compliance)
+        if authorization:
+            logger.info("🔐 Authorization header received")
+        
         logger.info(f"📥 Processing hackathon request with {len(request.questions)} questions")
 
         # Validate processor
@@ -224,11 +221,7 @@ async def hackrx_run(request: QueryRequest):
                 result = batch_result['results'][j]
                 answer = AnswerResponse(
                     question=question,
-                    answer=result.get('answer', 'No answer available'),
-                    confidence=result.get('confidence', 0.5),
-                    relevant_clauses=all_relevant_chunks[j][:3],
-                    decision=result.get('decision', 'approved'),
-                    justification=result.get('answer', 'No justification available')
+                    answer=result.get('answer', 'No answer available')
                 )
                 answers.append((orig_idx, answer))
 
@@ -252,11 +245,7 @@ async def hackrx_run(request: QueryRequest):
 
                     answer = AnswerResponse(
                         question=question,
-                        answer=result.get('user_friendly_explanation', 'No explanation available'),
-                        confidence=confidence,
-                        relevant_clauses=relevant_chunks[:5],  # More clauses for complex queries
-                        decision=result.get('decision'),
-                        justification=result.get('justification')
+                        answer=result.get('user_friendly_explanation', 'No explanation available')
                     )
 
                     answers.append((orig_idx, answer))
@@ -271,11 +260,7 @@ async def hackrx_run(request: QueryRequest):
 
                     fallback_answer = AnswerResponse(
                         question=question,
-                        answer=f"Unable to process this complex query: {str(e)}",
-                        confidence=0.0,
-                        relevant_clauses=[],
-                        decision="error",
-                        justification="Technical processing error"
+                        answer=f"Unable to process this complex query: {str(e)}"
                     )
                     answers.append((orig_idx, fallback_answer))
 
@@ -286,23 +271,9 @@ async def hackrx_run(request: QueryRequest):
         # Calculate processing time
         processing_time = time.time() - start_time
 
-        # Create response
+        # Create response - EXACTLY matching hackathon format
         response = HackrxResponse(
-            answers=final_answers,
-            processing_time=round(processing_time, 3),
-            document_processed=True,
-            total_questions=len(request.questions),
-            successful_answers=successful_count,
-            system_info={
-                "model": "Gemini 1.5 Flash",
-                "embedding_model": "all-MiniLM-L6-v2",
-                "vector_db": "FAISS",
-                "chunks_processed": len(processor.document_chunks) if processor.document_chunks else 0,
-                "api_version": "1.0.0",
-                "processing_method": "Hybrid: Ultra-fast + Full LLM",
-                "simple_questions": len(simple_questions),
-                "complex_questions": len(complex_questions)
-            }
+            answers=final_answers
         )
 
         logger.info(f"🎉 Successfully processed {successful_count}/{len(request.questions)} questions in {processing_time:.3f}s")

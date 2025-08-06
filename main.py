@@ -31,16 +31,21 @@ class IntelligentClaimsProcessor:
         # Load environment variables
         load_dotenv()
 
-        # Check if API key is available
+        # Setup API keys with failover
         self.api_key = os.getenv("GOOGLE_API_KEY")
+        self.api_key_pro = os.getenv("GOOGLE_API_KEY_PRO")
+        self.current_key = self.api_key
+
         if not self.api_key:
             print(f"{Fore.RED}❌ Error: GOOGLE_API_KEY not found in environment variables.")
             print("Please create a .env file with your Google API key.")
             exit(1)
 
-        # Configure Gemini AI
-        genai.configure(api_key=self.api_key)
+        # Configure Gemini AI with primary key
+        genai.configure(api_key=self.current_key)
         self.llm = genai.GenerativeModel("gemini-1.5-flash")
+
+        print(f"{Fore.GREEN}✅ API Keys loaded: Primary + {'PRO backup' if self.api_key_pro else 'No backup'}")
 
         # Initialize components
         self.sentence_model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -51,6 +56,17 @@ class IntelligentClaimsProcessor:
         self.embeddings = None
 
         print(f"{Fore.GREEN}✅ Intelligent Claims Processor initialized successfully!")
+
+    def switch_to_pro_key(self):
+        """Switch to PRO API key when primary key hits quota"""
+        if self.api_key_pro and self.current_key != self.api_key_pro:
+            print(f"{Fore.YELLOW}🔄 Switching to PRO API key due to quota limits...")
+            self.current_key = self.api_key_pro
+            genai.configure(api_key=self.current_key)
+            self.llm = genai.GenerativeModel("gemini-1.5-flash")
+            print(f"{Fore.GREEN}✅ Switched to PRO API key successfully!")
+            return True
+        return False
 
     def load_documents(self, docs_folder="docs"):
         """Load and process all policy documents from the docs folder"""
@@ -222,22 +238,51 @@ class IntelligentClaimsProcessor:
 
 
     def process_claim_query(self, user_query):
-        """Process a claim query with fallback for API quota issues"""
+        """Process a claim query with enhanced API failover and fallback"""
         try:
             # 🔄 ALWAYS TRY AI FIRST - Will automatically use AI when quota resets!
             print(f"{Fore.CYAN}🤖 Attempting AI processing (quota resets daily at 12 AM PT / 1:30 PM IST)...")
             return self._process_claim_with_ai(user_query)
         except Exception as e:
             error_msg = str(e)
+            print(f"{Fore.RED}❌ Error processing claim: {error_msg}")
 
-            # Check if it's an API quota error
-            if "429" in error_msg or "quota" in error_msg.lower():
-                print(f"{Fore.YELLOW}⚠️ AI API quota reached. Using smart fallback until quota resets...")
-                print(f"{Fore.BLUE}💡 Quota will reset at: 12:00 AM PT (1:30 PM IST next day)")
-                return self._fallback_claim_processing(user_query)
+            # Handle quota exhaustion and API errors more comprehensively
+            if ("429" in error_msg or "quota" in error_msg.lower() or
+                "ResourceExhausted" in error_msg or "RESOURCE_EXHAUSTED" in error_msg):
+                # Try switching to PRO key first
+                if self.switch_to_pro_key():
+                    print(f"{Fore.CYAN}🔄 Retrying with PRO API key...")
+                    try:
+                        return self._process_claim_with_ai(user_query)
+                    except Exception as pro_error:
+                        pro_error_msg = str(pro_error)
+                        print(f"{Fore.YELLOW}⚠️ PRO API issue: {pro_error_msg[:100]}...")
+                        # If PRO key also has quota issues, use smart fallback
+                        if ("429" in pro_error_msg or "quota" in pro_error_msg.lower() or
+                            "ResourceExhausted" in pro_error_msg or "RESOURCE_EXHAUSTED" in pro_error_msg):
+                            print(f"{Fore.YELLOW}⚠️ Both API keys exhausted. Using document-based fallback...")
+                            return self._fallback_claim_processing(user_query)
+                        else:
+                            # Other error with PRO key, try fallback
+                            print(f"{Fore.YELLOW}⚠️ PRO API error. Using document-based fallback...")
+                            return self._fallback_claim_processing(user_query)
+                else:
+                    print(f"{Fore.YELLOW}⚠️ No PRO API key available. Using document-based fallback...")
+                    return self._fallback_claim_processing(user_query)
             else:
-                # Re-raise other errors
-                raise e
+                # For other errors, try PRO key first before failing
+                if self.current_key != self.api_key_pro and self.switch_to_pro_key():
+                    print(f"{Fore.CYAN}� Trying PRO API key for general error...")
+                    try:
+                        return self._process_claim_with_ai(user_query)
+                    except Exception as pro_error:
+                        print(f"{Fore.YELLOW}⚠️ PRO API also failed. Using document-based fallback...")
+                        return self._fallback_claim_processing(user_query)
+                else:
+                    # Use document-based fallback for other errors
+                    print(f"{Fore.YELLOW}⚠️ Using document-based fallback for error: {error_msg[:100]}...")
+                    return self._fallback_claim_processing(user_query)
 
     def _process_claim_with_ai(self, user_query):
         """
@@ -289,62 +334,52 @@ class IntelligentClaimsProcessor:
         # Emergency context
         emergency_context = "⚠️ EMERGENCY CLAIM - Prioritize immediate coverage and emergency provisions." if is_emergency else ""
 
-        # Enhanced prompt based on actual Bajaj Allianz Global Health Care policy
+        # Enhanced prompt for REAL WORLD insurance analysis
         prompt = f"""
-You are an expert insurance claims evaluator for Bajaj Allianz Global Health Care Policy (UIN: BAJHLIP23020V012223).
-Analyze this claim based on the ACTUAL policy content provided.
+You are an expert insurance claims analyzer with access to REAL policy documents.
+Analyze this claim with extreme care - human lives and financial security depend on accurate decisions.
 
-{emergency_context}
+🚨 CRITICAL CLAIM ANALYSIS:
+User Query: "{original_query}"
+Enhanced Query: "{enhanced_query}"
+Emergency Status: {"🚨 LIFE-THREATENING - IMMEDIATE COVERAGE REQUIRED" if is_emergency else "Standard Processing"}
 
-CLAIM DETAILS:
-- Original User Input: "{original_query}"
-- Processed Claim: "{enhanced_query}"
-- Emergency Status: {"YES - Fast-track processing" if is_emergency else "NO - Standard processing"}
-
-ACTUAL POLICY CLAUSES:
+📋 ACTUAL POLICY CONTENT:
 {clauses_context}
 
-BAJAJ ALLIANZ POLICY GUIDELINES (Based on actual policy):
-1. **Waiting Periods**:
-   - 30 days for general illnesses
-   - 90 days for specific conditions (cardiac, cancer, etc.)
-   - No waiting period for accidents and emergencies
+🧠 COMPREHENSIVE ANALYSIS REQUIRED:
+1. **Document Analysis**: What do the ACTUAL policy clauses say about this specific scenario?
+2. **Legal Precedent**: Consider insurance industry standards for similar cases
+3. **Medical Necessity**: If medical treatment, is it medically necessary?
+4. **Coverage Scope**: Does this fall within or outside policy coverage?
+5. **Risk Assessment**: What are the financial and health implications?
+6. **Real-World Context**: Consider practical aspects of this situation
 
-2. **Coverage Includes**:
-   - Inpatient hospitalization treatment
-   - Day care procedures (listed surgeries)
-   - Emergency ambulance services
-   - AYUSH treatments
-   - Organ transplant coverage
-   - Cancer treatment
-   - Cardiac procedures
-   - Orthopedic surgeries
+🎯 RESPONSE REQUIREMENTS:
+- Reference SPECIFIC policy clauses from the provided documents
+- If documents are insufficient, clearly state what additional information is needed
+- Provide nuanced, conditional analysis (not black/white answers)
+- Consider edge cases and exceptions
+- Give actionable next steps for the claimant
 
-3. **Location-Based Hospital Network**:
-   - Network hospitals for cashless facility
-   - Emergency treatment at any hospital initially
-   - Reimbursement available for non-network hospitals
-
-4. **Age Considerations**:
-   - Pediatric coverage included
-   - Senior citizen coverage with specific conditions
-   - Maternity benefits (if covered under specific plans)
-
-5. **Emergency Override**: Always prioritize life-threatening conditions regardless of waiting periods
+📊 DECISION FRAMEWORK:
+- Emergency/Life-threatening: Default to coverage, review later
+- Standard claims: Thorough policy analysis required
+- Exclusions: Must be explicitly stated in policy documents
+- Gray areas: Provide conditional coverage guidance
 
 RESPONSE FORMAT (JSON only):
 {{
-  "decision": "approved" or "rejected",
-  "justification": "Clear explanation referencing specific Bajaj Allianz policy clauses",
+  "decision": "approved" or "rejected" or "requires_review",
+  "justification": "Detailed analysis referencing specific policy clauses and reasoning",
+  "user_friendly_explanation": "Clear explanation in everyday language with specific next steps",
+  "clause_references": ["Specific policy clauses that influenced the decision"],
   "emergency_override": true_or_false,
-  "user_friendly_explanation": "Simple explanation in everyday language",
-  "clause_references": ["Specific Bajaj Allianz policy clauses that influenced the decision"],
-  "location_detected": "City/area from query or 'Not specified'",
-  "nearby_hospitals": ["List of 3-5 hospitals in the detected area - prioritize network hospitals"],
-  "emergency_contacts": ["Area-specific emergency numbers including Bajaj Allianz helpline"],
-  "immediate_care_tips": ["3-5 medical care tips specific to the condition"],
-  "specialist_recommendation": "Type of specialist needed",
-  "policy_specific_info": "Additional Bajaj Allianz policy-specific guidance"
+  "additional_info_needed": ["What information is missing for complete analysis"],
+  "coverage_percentage": "Percentage of coverage if partial",
+  "next_steps": ["Specific actions the claimant should take"],
+  "timeline": "Expected processing timeframe",
+  "policy_specific_guidance": "Specific guidance based on actual policy terms"
 }}
 """
 
@@ -352,11 +387,27 @@ RESPONSE FORMAT (JSON only):
             response = self.llm.generate_content(prompt)
             response_text = response.text.strip()
 
-            # Clean up response (remove markdown if present)
+            print(f"🤖 Raw AI Response: {response_text[:200]}...")  # Debug log
+
+            # Enhanced cleanup of response (remove markdown if present)
             if response_text.startswith("```json"):
                 response_text = response_text[7:]
+            if response_text.startswith("```"):
+                response_text = response_text[3:]
             if response_text.endswith("```"):
                 response_text = response_text[:-3]
+
+            # Additional cleanup for common AI response patterns
+            response_text = response_text.strip()
+
+            # Find JSON content between first { and last }
+            start_idx = response_text.find('{')
+            end_idx = response_text.rfind('}')
+
+            if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+                response_text = response_text[start_idx:end_idx+1]
+
+            print(f"🧹 Cleaned AI Response: {response_text[:200]}...")  # Debug log
 
             # Parse JSON response
             decision = json.loads(response_text)
@@ -371,6 +422,7 @@ RESPONSE FORMAT (JSON only):
             return decision
 
         except (json.JSONDecodeError, Exception) as e:
+            print(f"❌ JSON Parsing Error: {str(e)}")  # Debug log
             # Fallback with basic policy information
             return {
                 "decision": "error",
@@ -599,55 +651,58 @@ def main():
             print(f"{Fore.RED}❌ Error: {str(e)}")
 
     def _fallback_claim_processing(self, user_query):
-        """Enhanced fallback processing when AI API is unavailable"""
-        print(f"{Fore.YELLOW}📋 Using enhanced rule-based fallback analysis...")
+        """Enhanced intelligent fallback when AI is unavailable - NO GENERIC PATTERNS"""
+        print(f"{Fore.YELLOW}� Using intelligent document-based analysis (AI temporarily unavailable)...")
 
-        # Analyze query keywords
+        # Analyze query for specific information needs
         query_lower = user_query.lower()
 
-        # Get relevant policy chunks first
+        # Get the most relevant policy chunks
         try:
             relevant_chunks, scores = self.semantic_search(user_query, top_k=5)
         except:
             relevant_chunks = []
+            scores = []
 
-        # Enhanced keyword-based responses
-        if 'grace period' in query_lower and 'premium' in query_lower:
-            answer = "Grace period for premium payment is typically 15-30 days as per standard insurance practices. Please refer to your policy schedule for exact details."
-        elif 'waiting period' in query_lower and ('pre-existing' in query_lower or 'ped' in query_lower):
-            answer = "Pre-existing diseases (PED) are typically covered after a waiting period of 24-48 months depending on the condition and policy terms."
-        elif 'maternity' in query_lower:
-            answer = "Maternity benefits are available after completing the waiting period of 36-48 months. Coverage includes delivery, pre-natal and post-natal expenses as per policy terms."
-        elif 'cataract' in query_lower:
-            answer = "Cataract surgery is typically covered after completing the waiting period of 24 months. Both traditional and modern techniques are covered."
-        elif 'organ donor' in query_lower:
-            answer = "Medical expenses for organ donors are covered under this policy when the recipient is also insured under the same or family policy."
-        elif 'no claim discount' in query_lower or 'ncd' in query_lower:
-            answer = "No Claim Discount (NCD) of 5-20% is typically offered for claim-free years, increasing cumulatively up to a maximum percentage."
-        elif 'preventive' in query_lower and 'health check' in query_lower:
-            answer = "Preventive health check-ups are covered annually with benefits ranging from ₹1,000 to ₹5,000 depending on your plan."
-        elif 'hospital' in query_lower and 'define' in query_lower:
-            answer = "A Hospital is defined as an institution with minimum 10 beds, qualified medical practitioners, nursing staff, and proper medical facilities for treatment."
-        elif 'ayush' in query_lower:
-            answer = "AYUSH treatments (Ayurveda, Yoga, Unani, Siddha, Homeopathy) are covered up to a specified limit when provided in recognized centers."
-        elif 'room rent' in query_lower or 'icu' in query_lower:
-            answer = "Room rent is typically limited to 1-2% of sum insured per day. ICU charges may have separate limits as specified in your policy schedule."
-        elif any(word in query_lower for word in ['emergency', 'urgent', 'accident', 'trauma']):
-            answer = "Emergency medical treatments are covered immediately without waiting period. Please proceed to nearest network hospital for cashless treatment."
-        else:
-            # Use relevant chunks if available
-            if relevant_chunks:
-                answer = f"Based on your policy documents: {relevant_chunks[0][:200]}... For complete details, please refer to your policy document."
+        # Intelligent analysis based on document content
+        if relevant_chunks:
+            # Analyze the actual document content for this specific query
+            best_chunks = relevant_chunks[:3]  # Top 3 most relevant sections
+            combined_content = " ".join(best_chunks)
+
+            # Extract key information from document content
+            if 'exclusion' in combined_content.lower() or 'not covered' in combined_content.lower():
+                decision = 'requires_review'
+                answer = f"Based on policy documents, this may involve exclusions. Relevant policy text: '{best_chunks[0][:300]}...' Please contact customer service for detailed review."
+            elif 'emergency' in query_lower or 'urgent' in query_lower:
+                decision = 'approved'
+                answer = f"Emergency situations are typically covered. Relevant policy guidance: '{best_chunks[0][:300]}...' Seek immediate medical attention and contact customer service for pre-authorization."
+            elif 'waiting period' in combined_content.lower():
+                decision = 'requires_review'
+                answer = f"This may involve waiting periods. Policy states: '{best_chunks[0][:300]}...' Please verify your policy start date and contact customer service."
             else:
-                answer = "This query requires detailed policy analysis. Please contact customer service for specific information regarding your policy terms and conditions."
+                decision = 'approved'
+                answer = f"Based on policy analysis: '{best_chunks[0][:400]}...' This appears to align with covered benefits. Contact customer service for confirmation."
 
-        # Create response matching the expected format
+        else:
+            # No relevant documents found
+            decision = 'requires_review'
+            answer = f"Your query '{user_query}' requires detailed policy review. No specific guidance was found in the available policy documents. Please contact customer service with your policy number for comprehensive analysis."
+
+        # Create comprehensive response
         result = {
-            'decision': 'approved',
+            'decision': decision,
             'user_friendly_explanation': answer,
-            'confidence': 0.75,
-            'justification': f"Rule-based analysis with policy knowledge. Query: {user_query[:100]}",
-            'processing_method': 'enhanced_rule_based_fallback'
+            'justification': f"Document-based analysis for: {user_query}. Found {len(relevant_chunks)} relevant policy sections.",
+            'confidence': 0.75 if relevant_chunks else 0.5,
+            'processing_method': 'intelligent_document_analysis',
+            'documents_analyzed': len(relevant_chunks),
+            'requires_human_review': True,
+            'next_steps': [
+                "Contact customer service with your policy number",
+                "Provide detailed information about your specific situation",
+                "Keep all relevant medical documentation ready"
+            ]
         }
 
         return result

@@ -1,0 +1,279 @@
+{
+  "Simple Questions": {
+    "questions_tested": 5,
+    "avg_response_time": 7.937306356430054,
+    "avg_accuracy_score": 8.2,
+    "avg_quality_score": 9,
+    "success_rate": 100.0,
+    "detailed_results": [
+      {
+        "question": "What is the grace period for premium payment?",
+        "expected_decision": "informational",
+        "expected_keywords": [
+          "grace period",
+          "premium",
+          "days"
+        ],
+        "actual_response": "We need more information to determine the grace period applicable to your situation. Please provide your policy schedule or certificate of insurance, which should specify your premium payment plan (e.g., monthly, quarterly, annual, lump sum).  It will also show your premium due date. Once we have this information, we can confirm the length of your grace period and whether your payment falls within it.  If your payment is outside the grace period, your policy may have lapsed, impacting coverage. If it is within the grace period for installment payments, note that coverage is suspended until the payment is received.",
+        "response_time": 9.238925457000732,
+        "accuracy_score": 8,
+        "quality_score": 9
+      },
+      {
+        "question": "Does this policy cover dental treatment?",
+        "expected_decision": "informational",
+        "expected_keywords": [
+          "dental",
+          "coverage",
+          "treatment"
+        ],
+        "actual_response": "Your claim for dental treatment requires further review.  We need more information to determine coverage. Please provide the following: \n\n1. **Policy details:** Which policy number are you referencing?  Specifically, do you have the 'Dental Plan Benefits' (optional) included in your policy?\n2. **Details of the required treatment:** Provide a detailed description of the dental treatment required, including the diagnosis and the proposed procedure(s).\n3. **Location of treatment:** Will the treatment take place within or outside of India?\n4. **Accident or pre-existing condition:**  Was this a dental issue resulting from an accident, or is it a pre-existing condition or routine care?\n5. **Supporting documentation:** Please provide any relevant medical records and receipts related to the treatment.\n\nOnce we have this information, we can analyze your claim thoroughly and make a decision on coverage.",
+        "response_time": 8.096794843673706,
+        "accuracy_score": 9,
+        "quality_score": 9
+      },
+      {
+        "question": "What is the waiting period for pre-existing diseases?",
+        "expected_decision": "informational",
+        "expected_keywords": [
+          "waiting period",
+          "pre-existing",
+          "diseases"
+        ],
+        "actual_response": "Your question about the waiting period for pre-existing conditions requires more information.  The policy mentions waiting periods, but the exact length depends on factors such as whether you have had continuous coverage previously, and which specific conditions are involved.  Please provide the following:\n\n1. **Complete policy documents:** We need to review the entire policy, not just excerpts.\n2. **Full medical history:** A detailed list of pre-existing conditions, their dates of diagnosis and treatment, and any previous insurance coverage related to these conditions are crucial to determine the applicable waiting period.\n\nOnce we have this information, we can provide a definitive answer. This review process typically takes 5-7 business days.",
+        "response_time": 7.551480770111084,
+        "accuracy_score": 8,
+        "quality_score": 9
+      },
+      {
+        "question": "I broke my arm, am I covered?",
+        "expected_decision": "approved",
+        "expected_keywords": [
+          "injury",
+          "coverage",
+          "approved"
+        ],
+        "actual_response": "We need more information to determine if your broken arm is covered. While the policy generally covers emergency accidental hospitalization, we need details about your medical bills and treatment.  Your doctor will need to confirm that the treatment couldn't have been reasonably delayed.  Please submit the following: 1) Detailed medical bills and records from your treatment; 2) A statement from your doctor confirming the necessity of immediate treatment and whether delaying it would have been detrimental to your health. Once we receive this information, we can assess your claim fully.",
+        "response_time": 7.377613306045532,
+        "accuracy_score": 6,
+        "quality_score": 9
+      },
+      {
+        "question": "What is the maximum coverage amount?",
+        "expected_decision": "informational",
+        "expected_keywords": [
+          "maximum",
+          "coverage",
+          "amount",
+          "₹"
+        ],
+        "actual_response": "The policy documents do not state a single 'maximum coverage amount'.  The maximum amount depends on the type of claim you're making. For example, there's a Rs. 5000 limit for a specific health checkup benefit (Clause 1). Other benefits might have different maximums tied to your 'Sum Insured' amount, which isn't listed in these documents.  Please provide your policy number and a detailed description of the claim, including the type of coverage you believe is applicable. We need your policy documents which include the actual Sum Insured to accurately assess your maximum coverage.",
+        "response_time": 7.421717405319214,
+        "accuracy_score": 10,
+        "quality_score": 9
+      }
+    ]
+  },
+  "Complex Scenarios": {
+    "questions_tested": 3,
+    "avg_response_time": 7.550236860911052,
+    "avg_accuracy_score": 10,
+    "avg_quality_score": 9.333333333333334,
+    "success_rate": 100.0,
+    "detailed_results": [
+      {
+        "question": "I am a 45-year-old diabetic patient who suffered a heart attack while traveling. My policy is 2 years old. Will my ₹5,00,000 treatment be covered considering my pre-existing diabetes?",
+        "expected_decision": "approved",
+        "expected_keywords": [
+          "diabetes",
+          "heart attack",
+          "pre-existing",
+          "coverage",
+          "emergency"
+        ],
+        "actual_response": "Your claim for heart attack treatment needs further investigation. Your diabetes is a pre-existing condition, and the policy's details regarding coverage for illnesses linked to pre-existing conditions, especially after the initial waiting period, are unclear from the provided snippets. We need to thoroughly review your complete policy documents to assess the waiting period details for your specific plan and the specific exclusions related to pre-existing conditions and heart attacks.  In the meantime, we will begin the initial claim processing.  We will contact you shortly to request additional information like your full policy document and medical records. We need to verify if this heart attack is a direct consequence of your pre-existing diabetes, and to determine if it falls under any specific exclusion based on the policy wording.",
+        "response_time": 7.251709222793579,
+        "accuracy_score": 10,
+        "quality_score": 10
+      },
+      {
+        "question": "My wife needs emergency C-section delivery at 7 months pregnancy. We have maternity coverage for 18 months. What percentage will be covered for NICU care?",
+        "expected_decision": "approved",
+        "expected_keywords": [
+          "maternity",
+          "emergency",
+          "C-section",
+          "NICU",
+          "coverage",
+          "percentage"
+        ],
+        "actual_response": "Your policy covers maternity expenses including C-sections, but there's an exclusion clause regarding 'pregnancy, childbirth, or consequences thereof'.  Whether NICU care for your premature baby is covered is unclear due to this conflicting clause.  We need to review the policy wording carefully to see if there are any exceptions for medically necessary care following a premature birth due to a life-threatening emergency.  We also need the specific details of your policy regarding the NICU coverage percentage, if any. Please provide your complete policy document for a definitive answer.  In the meantime, please focus on your wife and baby's immediate medical needs.  Do not delay or forgo necessary medical care due to uncertainty about coverage. We will expedite the review once we receive the complete policy document.",
+        "response_time": 7.714926719665527,
+        "accuracy_score": 10,
+        "quality_score": 9
+      },
+      {
+        "question": "I need experimental cancer treatment costing ₹15,00,000. My policy has ₹10,00,000 coverage with cancer rider. What are my options?",
+        "expected_decision": "requires_review",
+        "expected_keywords": [
+          "cancer",
+          "experimental",
+          "rider",
+          "coverage",
+          "options",
+          "₹"
+        ],
+        "actual_response": "Your claim for ₹15,00,000 for experimental cancer treatment exceeds your policy's ₹10,00,000 cancer rider coverage. We need more information to determine coverage.  First, we need a detailed medical report from your oncologist explaining the necessity of this specific experimental treatment, the standard alternatives, and why this is the most appropriate course of action.  Second, we require a copy of Annexure III from your policy document that details 'Modern Treatment Methods'. This will help us understand whether this experimental treatment is covered under your policy.  Once we receive this information, we can assess whether the treatment falls under 'Reasonable and Customary Charges' as defined in your policy.  A partial payment may be possible depending on the evaluation.",
+        "response_time": 7.684074640274048,
+        "accuracy_score": 10,
+        "quality_score": 9
+      }
+    ]
+  },
+  "Emergency Cases": {
+    "questions_tested": 3,
+    "avg_response_time": 7.758066018422444,
+    "avg_accuracy_score": 9.666666666666666,
+    "avg_quality_score": 9.333333333333334,
+    "success_rate": 100.0,
+    "detailed_results": [
+      {
+        "question": "URGENT: Heart attack patient needs immediate surgery. Policy holder for 6 months. Please approve emergency treatment.",
+        "expected_decision": "approved",
+        "expected_keywords": [
+          "emergency",
+          "heart attack",
+          "surgery",
+          "immediate",
+          "approved"
+        ],
+        "actual_response": "Due to the urgency and life-threatening nature of your situation, we are prioritizing your claim for review.  We need additional information to confirm coverage under your policy. Please provide detailed medical records from your attending physician describing the heart attack, planned surgery, and the necessity for immediate treatment.  We also require a confirmation of your policy details, including your policy number and coverage limits.  This information will help us determine if the heart attack and required surgery are covered under your policy's terms and conditions.  We will provide updates and decisions as quickly as possible.  In the meantime, ensure the treatment proceeds immediately; we will address the cost implications thereafter.",
+        "response_time": 8.143006324768066,
+        "accuracy_score": 9,
+        "quality_score": 9
+      },
+      {
+        "question": "Emergency stroke case - patient unconscious, need ICU admission immediately. 3-year policy holder.",
+        "expected_decision": "approved",
+        "expected_keywords": [
+          "emergency",
+          "stroke",
+          "ICU",
+          "immediate",
+          "approved"
+        ],
+        "actual_response": "We understand this is a critical situation.  To process your claim quickly, we need additional information. Please provide your policy number to identify your specific plan (Imperial, Imperial Plus, etc.) and the full policy wording.  Also, please provide the location of the stroke (domestic or international). Your immediate admission to the ICU is covered, however, the waiting period might be applicable depending on the terms of your specific plan. We need to verify this to determine the extent of coverage. A medical professional's report from the hospital would further clarify the medical necessity of the treatment. We will expedite the review as soon as we have this information.",
+        "response_time": 7.674197196960449,
+        "accuracy_score": 10,
+        "quality_score": 9
+      },
+      {
+        "question": "Critical accident case - multiple injuries, emergency surgery required. Please fast-track approval.",
+        "expected_decision": "approved",
+        "expected_keywords": [
+          "emergency",
+          "accident",
+          "critical",
+          "surgery",
+          "fast-track"
+        ],
+        "actual_response": "Due to the emergency nature of your claim, we are fast-tracking the review. However, we need more information to process it fully.  Please provide a detailed medical report from your doctor confirming the injuries, the urgency of the surgery, and why it couldn't wait. We also need details of the medical bills to ensure they align with our policy's reasonable and customary charge limits.  Once we receive this information, we can make a final determination on coverage. We will contact you as soon as possible.",
+        "response_time": 7.456994533538818,
+        "accuracy_score": 10,
+        "quality_score": 10
+      }
+    ]
+  },
+  "Edge Cases": {
+    "questions_tested": 3,
+    "avg_response_time": 7.844915310541789,
+    "avg_accuracy_score": 8.666666666666666,
+    "avg_quality_score": 9,
+    "success_rate": 100.0,
+    "detailed_results": [
+      {
+        "question": "What about treatment in Antarctica for emergency appendicitis?",
+        "expected_decision": "requires_review",
+        "expected_keywords": [
+          "emergency",
+          "treatment",
+          "location",
+          "coverage"
+        ],
+        "actual_response": "Your claim for emergency appendicitis treatment in Antarctica requires further review.  Your policy currently covers emergency medical expenses only within the Republic of India.  Because this is a life-threatening emergency, we will prioritize your case.  We need to review your policy for any additional coverage, such as international travel insurance add-ons, or riders that might apply to this exceptional situation.  Please provide a copy of your complete policy documents, including any supplementary materials, such as endorsements or riders.  We also require documentation from your medical providers detailing the medical necessity of immediate treatment in Antarctica and the impossibility of transporting you to India for treatment.",
+        "response_time": 7.250537633895874,
+        "accuracy_score": 10,
+        "quality_score": 9
+      },
+      {
+        "question": "Policy purchased yesterday, heart attack today. Pre-existing or emergency?",
+        "expected_decision": "requires_review",
+        "expected_keywords": [
+          "pre-existing",
+          "emergency",
+          "waiting period",
+          "new policy"
+        ],
+        "actual_response": "Your claim is being reviewed.  Because your heart attack occurred shortly after purchasing the policy, we need to determine if this was a pre-existing condition that should have been disclosed before policy purchase or a sudden, unexpected event.  We will require additional medical records to clarify the onset of your heart condition. This is a priority claim given the life-threatening nature; however, a full assessment is necessary to determine full coverage. To expedite the process, please provide your complete medical history, including any recent doctor visits and tests related to your heart health, within the next 24-48 hours to your insurer.",
+        "response_time": 8.327849864959717,
+        "accuracy_score": 7,
+        "quality_score": 9
+      },
+      {
+        "question": "Treatment cost is ₹50,00,000 but my coverage is only ₹5,00,000. What happens?",
+        "expected_decision": "partial",
+        "expected_keywords": [
+          "coverage limit",
+          "excess",
+          "₹",
+          "options"
+        ],
+        "actual_response": "Your treatment cost is much higher than your policy coverage. We need more information to assess your claim.  Please provide a detailed breakdown of all medical expenses, including itemized bills, doctor's reports, and any other relevant medical documentation justifying the necessity of each cost. This will allow us to determine which expenses are considered 'reasonable and customary' under your policy and whether any exclusions apply.  We will then review your claim for potential coverage within your ₹5,00,000 limit.  The insurance company might also assess the medical necessity of the treatments.",
+        "response_time": 7.956358432769775,
+        "accuracy_score": 9,
+        "quality_score": 9
+      }
+    ]
+  },
+  "Real World Cases": {
+    "questions_tested": 2,
+    "avg_response_time": 8.486370921134949,
+    "avg_accuracy_score": 8.5,
+    "avg_quality_score": 9,
+    "success_rate": 100.0,
+    "detailed_results": [
+      {
+        "question": "I am a 45-year-old diabetic patient who has been managing my condition with insulin for 8 years. Last month, while traveling for business in a different state, I suffered a severe hypoglycemic episode that led to unconsciousness and required emergency hospitalization for 3 days including ICU admission. The hospital performed comprehensive tests including cardiac monitoring, neurological assessments, and endocrine consultations. My policy has been active for 18 months. The total bill is ₹2,50,000 including room charges, specialist consultations, diagnostic tests, and medications. The treating physician has recommended follow-up with an endocrinologist and cardiologist due to complications. Will this claim be covered considering my pre-existing diabetes, the out-of-state treatment, the emergency nature, and the comprehensive care required? What percentage of the bill will be covered and are there any specific exclusions I should be aware of?",
+        "expected_decision": "approved",
+        "expected_keywords": [
+          "diabetes",
+          "emergency",
+          "ICU",
+          "coverage",
+          "percentage",
+          "exclusions"
+        ],
+        "actual_response": "Your claim is complex because of your pre-existing diabetes and the out-of-state treatment.  While the emergency situation strongly favors coverage, we need more information from your policy document to determine the extent of coverage.  Specifically, we need the complete policy document to verify the clauses related to pre-existing conditions, out-of-state treatment coverage, and any applicable exclusions or waiting periods.  We also need to verify the reasonableness of the medical bills. Please provide a full copy of your policy document and all supporting medical documentation from the hospital.  Once we receive these, we can give you a definitive answer. We will prioritize your case given the emergency nature of the situation.",
+        "response_time": 8.139317512512207,
+        "accuracy_score": 10,
+        "quality_score": 9
+      },
+      {
+        "question": "I am a 52-year-old construction worker who was recently diagnosed with mesothelioma, a rare cancer caused by asbestos exposure from my work over the past 25 years. My oncologist has recommended a comprehensive treatment plan including surgical resection, chemotherapy, and radiation therapy, with estimated costs exceeding ₹25,00,000 over the next 18 months. The treatment requires specialized care at a cancer center, including experimental immunotherapy protocols that may not be covered under standard policies. Additionally, I need to travel 800 kilometers to reach the nearest specialized mesothelioma treatment center, requiring temporary relocation for my family. My current health insurance policy has a sum insured of ₹10,00,000 with cancer coverage as a rider. The insurance company is questioning whether this is a pre-existing condition since mesothelioma has a long latency period and symptoms may have been present before policy inception, though undiagnosed. They are also questioning coverage for experimental treatments and travel/accommodation expenses. Given the occupational nature of this disease, the specialized treatment requirements, the inadequate sum insured amount, and the dispute over pre-existing conditions, what are my legal rights? Can I claim compensation from my employer's liability insurance? What specific steps should I take to ensure maximum coverage from my health insurance, and are there government schemes or cancer foundations that can supplement the treatment costs?",
+        "expected_decision": "requires_review",
+        "expected_keywords": [
+          "mesothelioma",
+          "cancer",
+          "occupational",
+          "experimental",
+          "legal rights",
+          "compensation"
+        ],
+        "actual_response": "Your claim for mesothelioma treatment is complex due to several factors: the insurer's questions about whether it's a pre-existing condition, the cost exceeding your policy limit, and the inclusion of experimental treatments.  We need more information about your policy's specific definitions of 'pre-existing conditions' and 'experimental treatments,' as well as its stance on travel and accommodation expenses.  We also need detailed medical records supporting the necessity of all recommended treatments.  Simultaneously, we will explore if your employer's liability insurance or government schemes can supplement your health insurance.",
+        "response_time": 8.83342432975769,
+        "accuracy_score": 7,
+        "quality_score": 9
+      }
+    ]
+  }
+}

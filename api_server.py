@@ -86,27 +86,15 @@ class HackrxResponse(BaseModel):
 # Startup event
 @app.on_event("startup")
 async def startup_event():
-    """Initialize the claims processor on startup"""
+    """Initialize the claims processor on startup - FAST VERSION"""
     global processor, ultra_fast_processor
     try:
-        logger.info("🚀 Initializing LLM Claims Processor...")
+        logger.info("🚀 Fast startup - initializing processors...")
         processor = IntelligentClaimsProcessor()
         ultra_fast_processor = UltraFastProcessor()
 
-        # Load documents from docs folder
-        docs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs")
-        logger.info(f"📂 Looking for documents in: {docs_path}")
-
-        if os.path.exists(docs_path):
-            if processor.load_documents("docs"):
-                logger.info("✅ Documents loaded successfully from docs folder")
-                logger.info(f"📊 Loaded {len(processor.document_chunks)} document chunks")
-            else:
-                logger.warning("⚠️ No documents loaded from docs folder")
-        else:
-            logger.warning(f"⚠️ Docs folder not found at: {docs_path}")
-
-        logger.info("🎉 API server ready for hackathon submission!")
+        logger.info("⚡ API server ready! Documents will load on first request.")
+        logger.info("🎉 Fast startup complete!")
 
     except Exception as e:
         logger.error(f"❌ Failed to initialize processor: {str(e)}")
@@ -196,85 +184,85 @@ async def hackrx_run(request: QueryRequest, authorization: Optional[str] = Heade
                 detail="Claims processor not initialized"
             )
 
+        # LAZY LOADING: Load documents on first request if not loaded
+        if not processor.document_chunks:
+            logger.info("⚡ Loading documents on first request...")
+            docs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs")
+            if os.path.exists(docs_path):
+                processor.load_documents("docs")
+                logger.info(f"✅ Loaded {len(processor.document_chunks)} document chunks")
+
         # Initialize results
         answers = []
         successful_count = 0
 
-        # Determine processing strategy based on query complexity
-        complex_questions = []
-        simple_questions = []
+        # 🚨 REAL AI ANALYSIS FOR EVERY QUESTION - NO PATTERNS!
+        # Human lives depend on accurate analysis, not generic responses
+        remaining_questions = []
 
         for i, question in enumerate(request.questions):
-            # Check if question is complex (length, multiple conditions, specific details)
-            if (len(question) > 100 or
-                any(word in question.lower() for word in ['comprehensive', 'complex', 'detailed', 'analysis', 'specific']) or
-                question.count(' and ') > 1 or question.count(',') > 2):
-                complex_questions.append((i, question))
-            else:
-                simple_questions.append((i, question))
+            # ALL questions go to AI for real document analysis
+            remaining_questions.append((i, question))
+            logger.info(f"🤖 Queuing question {i+1} for AI analysis: {question[:60]}...")
 
-        logger.info(f"📊 Processing strategy: {len(simple_questions)} simple, {len(complex_questions)} complex")
+        logger.info(f"🧠 ALL {len(remaining_questions)} questions will get REAL AI analysis")
 
-        # Process simple questions with ultra-fast processor
-        if simple_questions and ultra_fast_processor:
-            logger.info("⚡ Processing simple questions with ultra-fast method...")
+        # 🧠 REAL AI PROCESSING FOR ALL QUESTIONS - NO GENERIC PATTERNS!
+        logger.info("🤖 Processing ALL questions with full AI analysis for real-world accuracy...")
 
-            simple_q_list = [q for _, q in simple_questions]
-            all_relevant_chunks = []
+        for orig_idx, question in remaining_questions:
+            try:
+                # REAL AI ANALYSIS: Search documents + AI reasoning for every question
+                logger.info(f"🔍 AI analyzing question {orig_idx + 1}: {question[:60]}...")
 
-            for question in simple_q_list:
-                relevant_chunks, _ = processor.semantic_search(question, top_k=3)
-                all_relevant_chunks.append(relevant_chunks)
+                # Get relevant document chunks for context
+                relevant_chunks, scores = processor.semantic_search(question, top_k=5)
+                logger.info(f"📄 Found {len(relevant_chunks)} relevant document sections")
 
-            batch_result = ultra_fast_processor.batch_process(simple_q_list, all_relevant_chunks)
+                # Use full AI processor for REAL analysis
+                result = processor.process_claim_query(question)
 
-            # Store results with original indices
-            for j, (orig_idx, question) in enumerate(simple_questions):
-                result = batch_result['results'][j]
+                # Extract the informative AI-generated answer
+                ai_answer = result.get('user_friendly_explanation',
+                           result.get('justification', 'No detailed analysis available'))
+
                 answer = AnswerResponse(
                     question=question,
-                    answer=result.get('answer', 'No answer available')
+                    answer=ai_answer
                 )
                 answers.append((orig_idx, answer))
 
                 if result.get('decision') in ['approved', 'rejected']:
                     successful_count += 1
 
-            logger.info(f"⚡ Simple questions processed in {batch_result['total_processing_time']}s")
+                logger.info(f"✅ AI completed analysis for question {orig_idx + 1}")
 
-        # Process complex questions with full LLM power
-        if complex_questions:
-            logger.info("🧠 Processing complex questions with full LLM analysis...")
+            except Exception as e:
+                logger.error(f"❌ AI processing failed for question {orig_idx + 1}: {str(e)}")
 
-            for orig_idx, question in complex_questions:
+                # ENHANCED FALLBACK: Use document chunks when AI fails
                 try:
-                    # Use full processor for complex queries
-                    result = processor.process_claim_query(question)
-                    confidence = calculate_confidence(result, question)
-
-                    # Get more relevant chunks for complex queries
-                    relevant_chunks, _ = processor.semantic_search(question, top_k=5)
+                    relevant_chunks, _ = processor.semantic_search(question, top_k=3)
+                    if relevant_chunks:
+                        # Use the most relevant document content
+                        best_chunk = relevant_chunks[0][:500]  # More content for better context
+                        document_answer = f"Based on policy documents: {best_chunk}... [AI analysis temporarily unavailable - this is from your actual policy documents]"
+                    else:
+                        document_answer = "Unable to find relevant information in policy documents. Please contact customer service for detailed assistance with this specific query."
 
                     answer = AnswerResponse(
                         question=question,
-                        answer=result.get('user_friendly_explanation', 'No explanation available')
+                        answer=document_answer
                     )
-
                     answers.append((orig_idx, answer))
 
-                    if result.get('decision') in ['approved', 'rejected']:
-                        successful_count += 1
-
-                    logger.info(f"🧠 Complex question {orig_idx + 1} processed")
-
-                except Exception as e:
-                    logger.error(f"❌ Error processing complex question {orig_idx + 1}: {str(e)}")
-
-                    fallback_answer = AnswerResponse(
+                except Exception as fallback_error:
+                    logger.error(f"❌ Document fallback also failed: {str(fallback_error)}")
+                    answer = AnswerResponse(
                         question=question,
-                        answer=f"Unable to process this complex query: {str(e)}"
+                        answer="Unable to process this query at the moment. Please contact customer service for immediate assistance."
                     )
-                    answers.append((orig_idx, fallback_answer))
+                    answers.append((orig_idx, answer))
 
         # Sort answers by original question order
         answers.sort(key=lambda x: x[0])
@@ -546,11 +534,13 @@ if __name__ == "__main__":
     print("📚 Documentation: GET /docs")
     print("🧪 Test endpoint: POST /api/test")
     print(f"🌐 Running on port: {port}")
+    print(f"🔗 Server will be available at: http://0.0.0.0:{port}")
 
     uvicorn.run(
         "api_server:app",
         host="0.0.0.0",
         port=port,
         reload=False,  # Disable for production
-        log_level="info"
+        log_level="info",
+        access_log=True  # Enable access logs for Render
     )
